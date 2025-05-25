@@ -18,7 +18,10 @@ const ReservaForm = ({ onReservaCreada }) => {
       return;
     }
 
-    const nuevaReserva = { nombre: nombre.trim(), fecha, hora };
+    // Combinar fecha y hora en formato ISO 24h
+    const fechaHoraISO = new Date(`${fecha}T${hora}:00`).toISOString();
+
+    const nuevaReserva = { nombre: nombre.trim(), fecha: fechaHoraISO };
 
     try {
       setLoading(true);

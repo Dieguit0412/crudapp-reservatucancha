@@ -17,10 +17,18 @@ app.get('/reservas', (req, res) => {
 // Crear una nueva reserva
 app.post('/reservas', (req, res) => {
   const { nombre, fecha } = req.body;
+
   if (!nombre || !fecha) {
     return res.status(400).json({ error: 'Faltan datos' });
   }
-  const nuevaReserva = { id: idCounter++, nombre, fecha };
+
+  // Validar que fecha sea una fecha válida en formato ISO
+  const fechaDate = new Date(fecha);
+  if (isNaN(fechaDate)) {
+    return res.status(400).json({ error: 'Fecha inválida' });
+  }
+
+  const nuevaReserva = { id: idCounter++, nombre, fecha: fechaDate.toISOString() };
   reservas.push(nuevaReserva);
   res.status(201).json(nuevaReserva);
 });
@@ -33,7 +41,14 @@ app.put('/reservas/:id', (req, res) => {
   if (reservaIndex === -1) {
     return res.status(404).json({ error: 'Reserva no encontrada' });
   }
-  reservas[reservaIndex] = { id: parseInt(id), nombre, fecha };
+
+  // Validar fecha en la actualización también
+  const fechaDate = new Date(fecha);
+  if (!nombre || !fecha || isNaN(fechaDate)) {
+    return res.status(400).json({ error: 'Datos inválidos' });
+  }
+
+  reservas[reservaIndex] = { id: parseInt(id), nombre, fecha: fechaDate.toISOString() };
   res.json(reservas[reservaIndex]);
 });
 
