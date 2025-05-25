@@ -4,19 +4,15 @@ import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
 
-// URL API
 const API_URL = 'http://localhost:3001/reservas';
 
-// Crear el contexto
 const ReservasContext = createContext();
 
-// Proveedor del contexto con toda la lógica
 function ReservasProvider({ children }) {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Obtener reservas
   const fetchReservas = async () => {
     setLoading(true);
     setError(null);
@@ -30,7 +26,6 @@ function ReservasProvider({ children }) {
     }
   };
 
-  // Agregar reserva
   const agregarReserva = async (reserva) => {
     try {
       await axios.post(API_URL, reserva);
@@ -40,7 +35,6 @@ function ReservasProvider({ children }) {
     }
   };
 
-  // Actualizar reserva
   const actualizarReserva = async (id, reserva) => {
     try {
       await axios.put(`${API_URL}/${id}`, reserva);
@@ -50,7 +44,6 @@ function ReservasProvider({ children }) {
     }
   };
 
-  // Eliminar reserva
   const eliminarReserva = async (id) => {
     try {
       await axios.delete(`${API_URL}/${id}`);
@@ -82,23 +75,22 @@ function ReservasProvider({ children }) {
   );
 }
 
-// Hook para usar el contexto
 function useReservas() {
   return useContext(ReservasContext);
 }
 
-// Componente para un solo ítem de reserva
 function ReservaItem({ reserva, onEdit, onDelete }) {
+  const fechaLocal = new Date(reserva.fecha).toLocaleString();
+
   return (
     <li>
-      {reserva.nombre} - {reserva.fecha} {reserva.hora}{' '}
+      {reserva.nombre} - {fechaLocal}{' '}
       <button onClick={() => onEdit(reserva)}>Editar</button>{' '}
       <button onClick={() => onDelete(reserva.id)}>Eliminar</button>
     </li>
   );
 }
 
-// Componente Reservas con formulario y lista
 function Reservas() {
   const {
     reservas,
@@ -124,7 +116,9 @@ function Reservas() {
       return;
     }
 
-    const nuevaReserva = { nombre: nombre.trim(), fecha, hora };
+    // Combinar fecha y hora en formato ISO
+    const fechaHoraISO = new Date(`${fecha}T${hora}:00`).toISOString();
+    const nuevaReserva = { nombre: nombre.trim(), fecha: fechaHoraISO };
 
     if (editingId) {
       actualizarReserva(editingId, nuevaReserva);
@@ -139,9 +133,13 @@ function Reservas() {
   };
 
   const handleEdit = (reserva) => {
+    const fechaObj = new Date(reserva.fecha);
+    const fechaStr = fechaObj.toISOString().split('T')[0];
+    const horaStr = fechaObj.toTimeString().slice(0, 5); // HH:MM
+
     setNombre(reserva.nombre);
-    setFecha(reserva.fecha);
-    setHora(reserva.hora || '');
+    setFecha(fechaStr);
+    setHora(horaStr);
     setEditingId(reserva.id);
     setError(null);
   };
@@ -192,12 +190,10 @@ function Reservas() {
   );
 }
 
-// Componente About
 function About() {
   return <h2>Acerca de la aplicación de reservas</h2>;
 }
 
-// Componente principal App con Router y Provider
 function App() {
   return (
     <ReservasProvider>
