@@ -1,0 +1,15 @@
+{
+  "reservas": [
+    {
+      "nombre": "Diego Andrés",
+      "fecha": "2025-05-26",
+      "hora": "19:00",
+      "id": 1
+    },
+    {
+      "nombre": "Diego Pardo",
+      "fecha": "2025-05-24",
+      "id": 2
+    }
+  ]
+}
